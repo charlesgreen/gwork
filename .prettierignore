@@ -1,0 +1,17 @@
+# License files
+LICENSE
+LICENSE.*
+
+# Binary and build artifacts
+*.exe
+*.dll
+*.so
+*.dylib
+gwork
+
+# Go files (handled by gofmt)
+*.go
+
+# Generated files
+coverage.html
+*.out

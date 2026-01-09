@@ -1,0 +1,21 @@
+version: "2"
+
+run:
+  timeout: 5m
+
+linters:
+  enable:
+    - errcheck
+    - govet
+    - staticcheck
+    - ineffassign
+    - unused
+    - gosec
+    - misspell
+  settings:
+    gosec:
+      excludes:
+        - G301
+        - G302
+        - G304
+        - G306

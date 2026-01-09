@@ -1,0 +1,37 @@
+# gwork configuration file
+# Copy this file to .gwork.yaml and update with your settings
+
+# Google Workspace configuration
+google:
+  # Path to the service account JSON key file
+  # The service account must have domain-wide delegation enabled
+  # Required scopes:
+  #   - https://www.googleapis.com/auth/drive.readonly
+  #   - https://www.googleapis.com/auth/drive.metadata.readonly
+  service_account_file: "path/to/service-account.json"
+
+  # Admin email for domain-wide delegation impersonation
+  # This user must have admin privileges in the Google Workspace domain
+  admin_email: "admin@company.com"
+
+  # Organization domain (used to identify external shares)
+  # Files shared with users outside this domain are considered external
+  domain: "company.com"
+
+# Audit configuration
+audit:
+  # Include files from shared drives in the audit
+  include_shared_drives: true
+
+  # Number of items to fetch per API page (max 1000)
+  # Higher values may improve performance but use more memory
+  page_size: 1000
+
+# Output configuration
+output:
+  # Output format: csv or json
+  format: csv
+
+  # Directory to save output files
+  # Created automatically if it doesn't exist
+  directory: "./output"
