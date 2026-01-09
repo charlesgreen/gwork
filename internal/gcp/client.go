@@ -7,10 +7,15 @@ import (
 	"context"
 	"fmt"
 	"os/exec"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
 )
+
+// projectIDPattern validates GCP project IDs.
+// Project IDs must be 6-30 characters, lowercase letters, digits, or hyphens.
+var projectIDPattern = regexp.MustCompile(`^[a-z][a-z0-9-]{4,28}[a-z0-9]$`)
 
 // Client provides GCP project operations.
 type Client struct {
@@ -53,7 +58,7 @@ func (g *GCloudCLI) ListProjects(ctx context.Context) ([]Project, error) {
 	var projects []Project
 	seen := make(map[string]bool)
 
-	lines := strings.Split(strings.TrimSpace(string(output)), "\n")
+	lines := strings.Split(strings.TrimSpace(string(output)), "\\n")
 	for _, line := range lines {
 		if line == "" {
 			continue
@@ -82,9 +87,20 @@ func (g *GCloudCLI) ListProjects(ctx context.Context) ([]Project, error) {
 
 // GetLastAuditLogEntry queries audit logs for the most recent entry.
 func (g *GCloudCLI) GetLastAuditLogEntry(ctx context.Context, projectID string, freshnessDays int) (string, error) {
+	// Validate project ID to prevent command injection
+	if !projectIDPattern.MatchString(projectID) {
+		return "", fmt.Errorf("invalid project ID format: %s", projectID)
+	}
+
+	// Validate freshness days is within reasonable bounds
+	if freshnessDays < 1 || freshnessDays > 400 {
+		return "", fmt.Errorf("freshness days must be between 1 and 400: %d", freshnessDays)
+	}
+
 	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
 
+	// #nosec G204 -- projectID is validated above against strict regex pattern
 	cmd := exec.CommandContext(ctx, "gcloud", "logging", "read",
 		"logName:cloudaudit.googleapis.com",
 		"--project="+projectID,
